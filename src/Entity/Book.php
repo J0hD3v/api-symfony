@@ -2,13 +2,36 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(
+            uriTemplate: '/book/{id}',
+            requirements: ['id' => '\d+'],
+            normalizationContext: ['groups' => 'book:item']),
+        new GetCollection(
+            uriTemplate: '/book',
+            normalizationContext: ['groups' => 'book:list']),
+        new Post(
+            uriTemplate: '/book',
+            status: 301
+        )
+    ],
+    order: ['id' => 'ASC', 'title' => 'ASC'],
+    paginationEnabled: true
+)]
 class Book
 {
     #[ORM\Id]
@@ -17,6 +40,7 @@ class Book
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[GROUPS(["user:books", "book:item", "book:list"])]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -29,12 +53,14 @@ class Book
      * @var Collection<int, Category>
      */
     #[ORM\ManyToMany(targetEntity: Category::class)]
+    #[GROUPS(["book:item", "book:list"])]
     private Collection $categories;
 
     /**
      * @var Collection<int, Author>
      */
     #[ORM\ManyToMany(targetEntity: Author::class)]
+    #[GROUPS(["book:item", "book:list"])]
     private Collection $authors;
 
     public function __construct()

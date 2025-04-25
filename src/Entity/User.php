@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Metadata\ApiResource; 
-use ApiPlatform\Metadata\Get; 
+use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -68,6 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var Collection<int, Book>
      */
     #[ORM\ManyToMany(targetEntity: Book::class)]
+    #[GROUPS(["user:books"])]
     private Collection $books;
 
     public function __construct()
